@@ -14,6 +14,8 @@ doc = Nokogiri::XML(File.read(ARGV[0]))
 gpx_version = doc.at_xpath('/*/@version')&.value
 doc.remove_namespaces!
 
+files = 0
+
 doc.xpath('//trkseg').each do |seg|
   first_pt_time = seg.at_xpath('.//time')&.text
   next unless first_pt_time
@@ -32,4 +34,13 @@ doc.xpath('//trkseg').each do |seg|
 
   File.write(File.join(outdir, filename), builder.to_xml)
   puts "Generated: #{filename}"
+
+  files += 1
+end
+
+if files == 1
+  puts 'Warning: Only one file was generated.'
+  puts 'Hint: Consider preparing the input file first using gpsbabel with the -x track,segment option.'
+else
+  puts "** split into #{files} files. **"
 end
